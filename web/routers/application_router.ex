@@ -16,4 +16,11 @@ defmodule ApplicationRouter do
     conn = conn.assign(:title, "Welcome to Concurrenty Story Teller v0.1!")
     render conn, "index.html"
   end
+
+  get "/:file_name" do
+    normalized_title = String.capitalize(String.replace(conn.params[:file_name], "-", " "))
+    conn = conn.assign :title, normalized_title
+    conn = conn.assign :file_name, conn.params[:file_name]
+    render conn, "story.html"
+  end
 end
