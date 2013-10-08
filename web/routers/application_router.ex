@@ -23,4 +23,25 @@ defmodule ApplicationRouter do
     conn = conn.assign :file_name, conn.params[:file_name]
     render conn, "story.html"
   end
+
+  get "/play/:story_name" do
+    conn = conn.resp_content_type("text/event-stream")
+    conn = conn.send_chunked(200)
+
+    iterator = File.iterator!("#{conn.params[:story_name]}.txt")
+
+    Enum.each iterator, fn(line) ->
+      { :ok, conn } = conn.chunk "data: #{line}\n"
+      await conn, 1000, on_wake_up(&1, &2), on_time_out(&1)
+    end
+    conn
+  end
+
+  defp on_wake_up(arg1, arg2) do
+    # Nothing
+  end
+
+  defp on_time_out(arg1) do
+    # Nothing
+  end
 end
